@@ -1,0 +1,140 @@
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827"><title>Rutina · Camilo & Johanna</title>
+<style>
+:root{--bg:#f5f5f3;--card:#fff;--text:#171717;--muted:#737373;--line:#e5e5e5;--dark:#111827}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:12px 10px 35px}.wrap{max-width:700px;margin:auto}
+header{padding:10px 4px 14px}h1{font-size:25px;margin:0 0 3px}.sub{font-size:13px;color:var(--muted)}
+.mainnav{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}.mainnav button{font-size:13px;padding:11px 6px}.mainnav button.active{background:var(--dark);color:#fff;border-color:var(--dark)}.person,.tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:8px}.tabs{grid-template-columns:repeat(5,1fr);position:sticky;top:0;z-index:10;padding:7px 0;background:rgba(245,245,243,.95);backdrop-filter:blur(8px)}
+button{font:inherit;border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 3px;font-size:12px;font-weight:700}button.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.title{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin:8px 2px 11px}.title h2{font-size:20px;margin:0 0 3px}.focus{font-size:12px;color:var(--muted)}.badge{background:#ececea;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800;white-space:nowrap}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;margin-bottom:12px}.row{display:grid;grid-template-columns:minmax(0,1fr) 42px 76px 50px 30px;gap:5px;align-items:center;padding:12px 8px;border-bottom:1px solid var(--line);font-size:12px}.row:last-child{border:0}.head{background:#fafafa;color:var(--muted);font-size:10px;font-weight:800}.center{text-align:center}.exercise{font-weight:650}.exercise.done{text-decoration:line-through;color:#999}
+.check{width:22px;height:22px;border:1.5px solid #cfcfcf;border-radius:7px;display:grid;place-items:center}.check.done{background:var(--dark);border-color:var(--dark);color:#fff}.check.done:after{content:"✓";font-weight:800}
+.core h3{font-size:15px;margin:16px 2px 8px}.note{font-size:12px;line-height:1.45;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 12px;margin:12px 0}.controls{display:flex;gap:8px;margin-top:10px}.controls button{flex:1;color:var(--muted)}.hidden{display:none}
+.rest{display:flex;gap:7px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;margin:12px 0}.timer{font-size:20px;font-weight:800;min-width:57px}.rest button{padding:8px 9px;font-size:10px}.rest .run{background:var(--dark);color:white}
+.progress{font-size:11px;color:var(--muted);margin:0 2px 10px}
+@media(max-width:430px){.row{grid-template-columns:minmax(0,1fr) 35px 68px 45px 27px;font-size:11px;padding:11px 6px}.head{font-size:9px}.badge{display:none}}
+</style></head><body><div class="wrap">
+<header><h1 id="appTitle">🏋️ Rutina 5 días</h1><div class="sub" id="appSub">Fuerza · pérdida de grasa · conservación de músculo</div></header><nav class="mainnav"><button id="navRoutine" class="active" onclick="setSection('routine')">🏋️ Rutina</button><button id="navMenu" onclick="setSection('menu')">🍽️ Menú</button></nav>
+<section id="routineSection"><div class="person"><button id="camilo" class="active" onclick="setPerson('Camilo')">👨 Camilo</button><button id="johanna" onclick="setPerson('Johanna')">👩 Johanna</button></div>
+<nav class="tabs"><button class="active" onclick="showDay('lunes',this)">Lun</button><button onclick="showDay('martes',this)">Mar</button><button onclick="showDay('miercoles',this)">Mié</button><button onclick="showDay('jueves',this)">Jue</button><button onclick="showDay('viernes',this)">Vie</button></nav>
+<div id="content"></div>
+<div class="rest"><div>⏱️</div><div class="timer" id="timer">01:30</div><button class="run" onclick="startTimer()">Iniciar</button><button onclick="setTimer(60)">1:00</button><button onclick="setTimer(90)">1:30</button><button onclick="setTimer(45)">0:45</button></div>
+<div class="note">📌 <b>Progresión:</b> cuando completes el máximo de reps con buena técnica, aumenta ligeramente la carga la próxima sesión. Mantén 1–2 reps en reserva en los ejercicios principales. Si hubo mucho tenis/pádel, no hace falta añadir HIIT.</div>
+<div class="controls"><button onclick="resetDay()">↺ Reiniciar día</button><button onclick="clearAll()">🗑 Borrar progreso</button></div></section><section id="menuSection" class="hidden"></section>
+</div>
+<script>
+const R={
+lunes:{n:"Lunes · Full Body A",f:"Fuerza + Core",b:"🔥 Full Body",i:[["Sentadilla","4","6–8","90 s"],["Press de Banca","4","6–8","90 s"],["Remo con Barra","3","8–10","75 s"],["Peso Muerto Rumano","3","8–10","75 s"],["Elevaciones Laterales","3","12–15","45 s"],["Core A","3","Según rutina","30 s"],["Caminata Inclinada","1","10 min","—"]]},
+martes:{n:"Martes · Glúteo + Femoral",f:"Glúteo y cadena posterior",b:"🍑 Lower",i:[["Hip Thrust","4","8–10","90 s"],["Peso Muerto Rumano","4","8–10","90 s"],["Bulgarian Split Squat","3","10 / pierna","75 s"],["Curl Femoral","3","12–15","60 s"],["Abducción en Máquina","3","15–20","45 s"],["Glute Kickback","3","12–15 / pierna","45 s"],["Caminata Inclinada","1","10 min","—"]]},
+miercoles:{n:"Miércoles · Full Body B",f:"Fuerza + Core",b:"🔥 Full Body",i:[["Press Inclinado con Mancuernas","3","8–10","75 s"],["Lat Pulldown","3","8–10","75 s"],["Leg Press","3","10–12","75 s"],["Cable Row","3","10–12","60 s"],["Military Press","3","8–10","75 s"],["Biceps Curl","2","12","45 s"],["Tríceps en Cable","2","12","45 s"],["Core B","3","Según rutina","45 s"],["Bicicleta","1","10 min","—"]]},
+jueves:{n:"Jueves · Cuádriceps + Glúteo",f:"Pierna + glúteo",b:"🍑 Lower",i:[["Sentadilla","4","6–8","90 s"],["Leg Press","3","10–12","75 s"],["Hip Thrust","3","10–12","90 s"],["Walking Lunges","3","12 / pierna","75 s"],["Extensión de Cuádriceps","3","12–15","60 s"],["Abducción en Máquina","3","20","45 s"],["Caminata Inclinada","1","10 min","—"]]},
+viernes:{n:"Viernes · Full Body C",f:"Fuerza + Core",b:"🔥 Full Body",i:[["Peso Muerto","4","5–6","90 s"],["Pullups / Lat Pulldown","3","8–10","75 s"],["Military Press / Dips","3","8–10","75 s"],["Machine Row","3","10","60 s"],["KB Swings","3","15","45 s"],["Core C","3","Según rutina","30 s"],["HIIT / Caminata","1","10–15 min","—"]]}
+};
+const C={lunes:[["Plancha","3","30–45 s","30 s"],["Dead Bug","3","10–12 / lado","30 s"],["Pallof Press","3","12 / lado","30 s"]],miercoles:[["Ab Wheel","3","8–12","45 s"],["Crunch en Polea","3","12–15","45 s"],["Plancha Lateral","3","30–40 s / lado","30 s"]],viernes:[["Mountain Climbers","3","30 s","30 s"],["Russian Twist","3","20 (10/lado)","30 s"],["Hollow Hold","3","20–30 s","30 s"]]};
+
+const MENUS={
+  Camilo:{
+    kcal:"1700 kcal · 17 proteínas · 5 carbohidratos · 4 vegetales · 2 frutas · 1 lácteo · 3 grasas",
+    meals:[
+      {n:"🍳 Desayuno",s:"4 proteínas + 1 carbohidrato",o:[
+        "3 huevos (≈150 g) + queso 30 g + pinto cocido ≈100 g",
+        "2 huevos (≈100 g) + queso 30 g + jamón 30 g + 2 tortiricas",
+        "2 huevos (≈100 g) + queso 30 g + jamón de pavo 30 g + pan tostado 1 unidad",
+        "4 huevos (≈200 g) + pinto cocido ≈100 g",
+        "Batido de proteína + 1 galleta María (opcional)"
+      ]},
+      {n:"🍓 Media mañana",s:"Opcional · 1 fruta + 1 lácteo",o:[
+        "1 fruta ≈120–180 g + yogurt griego ≈150–170 g"
+      ]},
+      {n:"🍗 Almuerzo",s:"5 proteínas + 2 carbohidratos + 2 vegetales + 1 grasa",o:[
+        "Pollo cocido 150 g + arroz cocido ≈160 g + vegetales ≈150 g + aguacate 50 g",
+        "Atún en agua 150 g + 2 galletas soda + ensalada ≈150 g + aceite de oliva 5 g",
+        "Pescado cocido 150 g + puré de papa ≈120 g + vegetales ≈150 g + aguacate 50 g",
+        "Carne molida 150 g + pasta cocida ≈140 g + ensalada ≈150 g + aguacate 50 g",
+        "Fajitas de res cocidas 150 g + arroz cocido ≈160 g + vegetales ≈75 g + aguacate 50 g"
+      ]},
+      {n:"🥤 Merienda",s:"Opcional · 1 carbohidrato + 3 proteínas",o:[
+        "Pre-entreno: 1 Tosh / María / rice cake / Nutrisnack + proteína según el intercambio del plan",
+        "Post-entreno: 1 batido de proteína"
+      ]},
+      {n:"🥗 Cena",s:"5 proteínas + 2 vegetales + 1 grasa + 1 carbohidrato",o:[
+        "Pollo cocido 150 g + arroz cocido ≈80 g + ensalada ≈100–120 g + aguacate 50 g",
+        "Chalupas: 2 tortiricas + carne desmechada ≈120 g + mozzarella 30 g + ensalada + aguacate 50 g",
+        "Yogurt griego ≈250 g + 1 scoop de proteína + granola/avena ≈30 g + chía 15 g",
+        "Ceviche ≈375 g + ensalada ≈100–120 g + aguacate 50 g + 1 galleta soda"
+      ]}
+    ]
+  },
+  Johanna:{
+    kcal:"1300 kcal · 12 proteínas · 4 carbohidratos · 4 vegetales · 2 frutas · 0 lácteos · 2 grasas",
+    meals:[
+      {n:"🍳 Desayuno",s:"4 proteínas + 1 carbohidrato",o:[
+        "3 huevos (≈150 g) + queso 30 g + pinto cocido ≈100 g",
+        "Quesadilla: 3 huevos (≈150 g) + queso 30 g + 2 tortiricas",
+        "Prensado: queso 60 g + jamón 60 g + tortilla de harina 1 unidad",
+        "Sándwich: 2 huevos (≈100 g) + jamón 30 g + queso 30 g + 2 Bimbo Thins",
+        "Batido de proteína + 1 galleta María (opcional)"
+      ]},
+      {n:"🍓 Media mañana",s:"Opcional · 1 fruta",o:[
+        "1 fruta ≈120–180 g"
+      ]},
+      {n:"🍗 Almuerzo",s:"4 proteínas + 1 carbohidrato + 2 vegetales + 1 grasa",o:[
+        "Pollo cocido 120 g + arroz cocido ≈80 g + vegetales ≈150 g + aguacate 50 g",
+        "Atún en agua 120 g + 1 galleta soda + ensalada ≈150 g + aceite de oliva 5 g",
+        "Pescado cocido 120 g + puré de papa ≈120 g + vegetales ≈150 g + aguacate 50 g",
+        "Carne molida ≈120 g + pasta cocida ≈70 g + ensalada ≈150 g + aguacate 50 g",
+        "Fajitas de res cocidas 120 g + arroz cocido ≈80 g + vegetales ≈75 g + aguacate 50 g"
+      ]},
+      {n:"🥤 Merienda",s:"Opcional · 1 carbohidrato",o:[
+        "1 Tosh / María / Nutrisnack / galleta soda / rice cake"
+      ]},
+      {n:"🥗 Cena",s:"4 proteínas + 2 vegetales + 1 grasa + 1 carbohidrato",o:[
+        "Sándwich: pollo 60 g + queso 60 g + lechuga/tomate + aguacate 50 g + 2 Bimbo Thins",
+        "Chalupas: 2 tortiricas + carne desmechada ≈90 g + mozzarella 30 g + ensalada + aguacate 50 g",
+        "Yogurt griego ≈125 g + 1 scoop de proteína + granola/avena ≈30 g + chía 15 g",
+        "Ceviche ≈250 g + ensalada ≈100 g + aguacate 50 g + 1 galleta soda"
+      ]}
+    ]
+  }
+};
+
+function setSection(section){
+  const routine=document.getElementById("routineSection"), menu=document.getElementById("menuSection");
+  const nr=document.getElementById("navRoutine"), nm=document.getElementById("navMenu");
+  const isRoutine=section==="routine";
+  routine.classList.toggle("hidden",!isRoutine);
+  menu.classList.toggle("hidden",isRoutine);
+  nr.classList.toggle("active",isRoutine); nm.classList.toggle("active",!isRoutine);
+  document.getElementById("appTitle").textContent=isRoutine?"🏋️ Rutina 5 días":"🍽️ Menú diario";
+  document.getElementById("appSub").textContent=isRoutine?"Fuerza · pérdida de grasa · conservación de músculo":MENUS[person].kcal;
+  if(!isRoutine) renderMenu();
+  scrollTo({top:0,behavior:"smooth"});
+}
+function renderMenu(){
+  const m=MENUS[person];
+  let s='<div class="title"><div><h2>🍽️ '+person+'</h2><div class="focus">'+m.kcal+'</div></div><div class="badge">Porciones prácticas</div></div>';
+  s+='<div class="note">⚖️ Pesos en gramos son aproximados y pensados para pesar alimentos cocidos cuando aplica. Las opciones respetan la estructura del plan de la nutricionista.</div>';
+  m.meals.forEach(meal=>{
+    s+='<div class="core"><h3>'+meal.n+' <span class="focus">· '+meal.s+'</span></h3><div class="card">';
+    meal.o.forEach((x,i)=>s+='<div style="padding:13px 12px;border-bottom:1px solid var(--line);font-size:13px;line-height:1.4"><b>Opción '+(i+1)+':</b> '+x+'</div>');
+    s+='</div></div>';
+  });
+  document.getElementById("menuSection").innerHTML=s;
+}
+
+let person=localStorage.getItem("person")||"Camilo",day="lunes",seconds=90,timer;
+function k(){return"rutina_"+person+"_"+day}
+function setPerson(p){person=p;localStorage.setItem("person",p);document.querySelectorAll(".person button").forEach(x=>x.classList.remove("active"));document.getElementById(p.toLowerCase()).classList.add("active");render();if(!document.getElementById("menuSection").classList.contains("hidden"))renderMenu()}
+function showDay(d,b){day=d;document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render();scrollTo({top:0,behavior:"smooth"})}
+function render(){let r=R[day],a=JSON.parse(localStorage.getItem(k())||"[]"),done=a.filter(Boolean).length,s='<div class="title"><div><h2>'+r.n+'</h2><div class="focus">'+r.f+'</div></div><div class="badge">'+r.b+'</div></div><div class="progress">'+done+' / '+r.i.length+' ejercicios completados</div><div class="card"><div class="row head"><div>Ejercicio</div><div class="center">Series</div><div class="center">Reps</div><div class="center">Desc.</div><div></div></div>';
+r.i.forEach((x,i)=>{let d=!!a[i];s+='<div class="row"><div class="exercise '+(d?'done':'')+'">'+x[0]+'</div><div class="center">'+x[1]+'</div><div class="center">'+x[2]+'</div><div class="center">'+x[3]+'</div><div class="check '+(d?'done':'')+'" onclick="toggle('+i+')"></div></div>'});s+='</div>';
+if(C[day]){let nm=day=="lunes"?"🟢 Core A":day=="miercoles"?"🟠 Core B":"🔴 Core C";s+='<div class="core"><h3>'+nm+'</h3><div class="card"><div class="row head"><div>Ejercicio</div><div class="center">Series</div><div class="center">Reps / Tiempo</div><div class="center">Desc.</div><div></div></div>';C[day].forEach(x=>s+='<div class="row"><div>'+x[0]+'</div><div class="center">'+x[1]+'</div><div class="center">'+x[2]+'</div><div class="center">'+x[3]+'</div><div></div></div>');s+='</div></div>'}document.getElementById("content").innerHTML=s}
+function toggle(i){let a=JSON.parse(localStorage.getItem(k())||"[]");a[i]=!a[i];localStorage.setItem(k(),JSON.stringify(a));render()}
+function resetDay(){localStorage.removeItem(k());render()}
+function clearAll(){if(confirm("¿Borrar todo el progreso?")){Object.keys(localStorage).filter(x=>x.startsWith("rutina_")).forEach(x=>localStorage.removeItem(x));render()}}
+function draw(){let m=String(Math.floor(seconds/60)).padStart(2,"0"),s=String(seconds%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s}
+function setTimer(s){clearInterval(timer);seconds=s;draw()}
+function startTimer(){clearInterval(timer);timer=setInterval(()=>{if(seconds>0){seconds--;draw()}else{clearInterval(timer);navigator.vibrate?.([200,100,200])}},1000)}
+draw();setPerson(person);
+</script></body></html>
